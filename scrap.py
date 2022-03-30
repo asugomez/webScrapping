@@ -9,11 +9,12 @@ https://towardsdatascience.com/web-scraping-basics-82f8b5acd45c
 Beautiful documentation:
 https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html
 
-todo: lenguaje CSS
 
-help soup:
+CSS selector:
 a.gamers: select an `a` tag with the class gamers
 a#gamer: select an `a` tag with the id gamer
+p ~ span will match all <span> elements that follow a <p>, immediately or not.
+More: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors 
 """
 from connexion import *
 from saveData import *
@@ -35,7 +36,7 @@ valorUF, valorCLP, habitaciones, banos, estacionamientos, amoblado, totalSuperfi
 direccion, comunas, tipoPublicacion, tipoVivienda, fechaPublicacion = [], [], [], [], []
 links, quienVende, corredor  = [], [], []
 # npages
-for i in range(nPages):    
+for i in range(nPages):   
     # Houses list
     page = requestURL(URL, str(i))
     housesList = page.select("div.clp-publication-element")
@@ -52,8 +53,11 @@ for i in range(nPages):
         links.append(finalLink)
         # get the info from this link
         housePage = requestURL(finalLink)
+        if(housePage == None): print("The url is: ", finalLink)
         main = housePage.select_one("div.clp-administration-main-panel div.clp-details-table")
         footmain = housePage.select_one("div.clp-administration-main-panel div.clp-publication-contact-box")
+
+    
 
         ## precios CLP y UF
         # los valores estan en CLP y UF, pero cambia el orden segun el anuncio
@@ -172,7 +176,7 @@ for i in range(nPages):
         fechaPublicacion.append(fecha)
 
         ### corredora
-        corredora = footmain.select_one("h2:-soup-contains('Corredora') ~ div.clp-user-contact-details-table table tr th:-soup-contains('Nombre') ~ td")
+        corredora = corredora = footmain.select_one("h2:-soup-contains('Corredora') ~ div > div.clp-user-contact-details-table > table > tr > th:-soup-contains('Nombre') ~ td")
         if(corredora != None):
             corredora = corredora.text.replace("\n","")
         corredor.append(corredora)
@@ -182,6 +186,9 @@ for i in range(nPages):
         if(propietario != None):
             propietario = propietario.text.replace("\n","")
         quienVende.append(propietario)
+
+
+### FINAL CREATE CSV FILE
 
 columns = [comunas, links, tipoVivienda, habitaciones, banos, estacionamientos, amoblado, totalSuperficie, superficieConstruida, añoConstruccion, valorUF, valorCLP, direccion, tipoPublicacion, quienVende, corredor ]
 names = ["Comuna", "Link", "Tipo_Vivienda", "N_Habitaciones", "N_Baños", "N_Estacionamientos", "Amoblado", "Total_Superficie_M2", "Superficie_Construida_M2", "Año_Construccion", "Valor_UF", "Valor_CLP", "Dirección", "Tipo_Publicacion", "Quién_Vende", "Corredor"]

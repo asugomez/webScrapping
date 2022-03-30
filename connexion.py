@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 
 #url = "https://chilepropiedades.cl/propiedades/venta/casa/region-metropolitana-de-santiago-rm/"
 def requestURL(URL, attr = ""):
@@ -12,17 +13,26 @@ def requestURL(URL, attr = ""):
     try:
         # send the request, with a randome user agent 
         finalURL = URL + attr
+        #  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"
+        ua = UserAgent()
+        proxies = { "http": None,"https": None }
         # Store the result in 'res' variable
-        res = requests.get(finalURL, headers={
-        "User-Agent" : "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
-        })
+        session = requests.Session()
+        session.trust_env = False
+        res = session.get(finalURL, headers={"User-Agent": ua.random}, proxies = proxies)
         txt = res.text
         status = res.status_code
+        
         # print the result
-        #print(txt, status)
+        print(status, res.reason, finalURL)
 
         # beautiful soup to get the information in str
         soup = BeautifulSoup(res.content, 'html.parser')
         return soup
     except requests.exceptions.ConnectionError:
-        print("Site not rechable", url)
+        print("attr: ", attr)
+        print("Site not rechable", URL)
+
+        # from getpass import getpass
+#>>> requests.get('https://api.github.com/user', auth=('username', getpass()))
+#<Response [200]>
