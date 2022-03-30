@@ -18,19 +18,7 @@ More: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
 """
 from connexion import *
 from saveData import *
-
-def appendElementToList(element, listOfElements, replaceEnter = True, replaceSpace = True, typeElement = "int"):
-    """
-    Si el type es float --> reemplazar replace(".","").replace(",",".")
-    """
-    if(element != None):
-        element = element.text
-        if(replaceEnter): element = element.replace("\n","")
-        if(replaceSpace): element = element.replace(" ", "")
-        if(typeElement == "int"): element = int(element)
-        if(typeElement == "float"): element = float(element.replace(".","").replace(",","."))
-    listOfElements.append(element)
-        
+from funAppend import *
 
 BASE_URL = "https://chilepropiedades.cl"
 URL = BASE_URL + "/propiedades/venta/casa/region-metropolitana-de-santiago-rm/"
@@ -50,7 +38,7 @@ links, quienVende, corredor  = [], [], []
 # npages
 
 ## try except, if excep columna vacia 
-for i in range(1):   
+for i in range(nPages):   
     # Houses list
     page = requestURL(URL, str(i))
     housesList = page.select("div.clp-publication-element")
@@ -66,163 +54,109 @@ for i in range(1):
         # append link to list
         links.append(finalLink)
         # get the info from this link
-        #housePage = requestURL(finalLink)
-        housePage = requestURL("https://chilepropiedades.cl/ver-publicacion/venta-usada/santiago/casa/camino-a-zapallar-parcelacion-los-cristales-lote-20-curico/6692328")
+        housePage = requestURL(finalLink)
         if(housePage == None): print("The url is: ", finalLink)
         main = housePage.select_one("div.clp-administration-main-panel div.clp-details-table")
         footmain = housePage.select_one("div.clp-administration-main-panel div.clp-publication-contact-box")
-
-    
 
         ## precios CLP y UF
         # los valores estan en CLP y UF, pero cambia el orden segun el anuncio
         # además se debe modificar el texto para que quede solo el string del numero y sea convertible en float
         # por eso se le saca " " y los puntos, y se modifican las comas por puntos
+        ### precio 1
         precio1 = main.select_one("div:-soup-contains('Valor:') ~ div.clp-description-value")
+        valPrecio, divisa = appendPrice(precio1)
+        if(divisa == "CLP"):
+            valorCLP.append(valPrecio)
+        elif(divisa == "UF"):
+            valorUF.append(valPrecio)
+        elif(divisa == "USD"):
+            valorUSD.append(valPrecio)
+        else:
+            print("WARNING: precio is not in CLP, UF or USD!")
+            print(valPrecio)
+            valorCLP.append(None)
+        ### precio 2
         precio2 = main.select_one("div:-soup-contains('Valor (') ~ div.clp-description-value > span")
-        #print(precio2)
-        try:
-            if(precio1 != None):
-                precio1 = precio1.text
-                precio1 = precio1.replace("\n","").replace(" ","").replace(".","").replace(",",".")
-                if(precio1.find("$") != -1): # valor CLP
-                    precio1 = precio1.replace("$","")
-                    precio1 = float(precio1)
-                    valorCLP.append(precio1)
-                elif(precio1.find("UF") != -1): # valor UF
-                    precio1 = precio1.replace("UF","")
-                    precio1 = float(precio1)
-                    valorUF.append(precio1)
-                elif(precio1.find("USD") != -1):
-                    precio1 = precio1.replace("USD","")
-                    precio1 = float(precio1)
-                    valorUSD.append(precio1)
-                else:
-                    print("WARNING: precio is not in CLP, UF or USD!")
-                    print(precio1)
-                    valorCLP.append(precio1)
+        valPrecio, divisa = appendPrice(precio2)
+        if(divisa == "CLP"):
+            valorCLP.append(valPrecio)
+        elif(divisa == "UF"):
+            valorUF.append(valPrecio)
+        elif(divisa == "USD"):
+            valorUSD.append(valPrecio)
+        else:
+            print("WARNING: precio is not in CLP, UF or USD!")
+            print(valPrecio)
+            valorCLP.append(None)
 
-            else:
-                valorCLP.append(precio1)
+        ### habitaciones
+        nHab = main.select_one("div:-soup-contains('Habitaciones') ~ div.clp-description-value")
+        appendElementToList(nHab, habitaciones, replaceEnter = True, replaceSpace = True, typeElement = "int" )
+            
+        ### baño 
+        nBano = main.select_one("div:-soup-contains('Baño') ~ div.clp-description-value")
+        appendElementToList(nBano, banos, replaceEnter = True, replaceSpace = True, typeElement = "int" )
 
-            if(precio2 != None):
-                precio2 = precio2.text
-                precio2 = precio2.replace("\n","").replace(" ","").replace(".","").replace(",",".")
-                if(precio2.find("$") != -1): # valor CLP
-                    precio2 = precio2.replace("$","")
-                    precio2 = float(precio2)
-                    valorCLP.append(precio2)
-                elif(precio2.find("UF") != -1): # valor UF
-                    precio2 = precio2.replace("UF","")
-                    precio2 = float(precio2)
-                    valorUF.append(precio2)
-                elif(precio2.find("USD") != -1):
-                    precio2 = precio2.replace("USD","")
-                    precio2 = float(precio2)
-                    valorUSD.append(precio2)
-                else:
-                    print("WARNING: precio is not in CLP, UF or USD!")
-                    print(precio2)
-                    valorCLP.append(precio2)
+        ### estacionamiento 
+        nEstacionamientos = main.select_one("div:-soup-contains('Estacionamiento') ~ div.clp-description-value")
+        appendElementToList(nEstacionamientos, estacionamientos, replaceEnter = True, replaceSpace = True, typeElement = "int" )
 
-            else:
-                valorUF.append(precio2)
+        ### amoblado
+        muebles = main.select_one("div:-soup-contains('Amoblado') ~ div.clp-description-value")
+        appendElementToList(muebles, amoblado, replaceEnter = True, replaceSpace = True, typeElement = "str" )
 
-            ### habitaciones
-            nHab = main.select_one("div:-soup-contains('Habitaciones') ~ div.clp-description-value")
-            if(nHab != None):
-                nHab = nHab.text.replace("\n","").replace(" ","")
-                nHab = int(nHab)
-            habitaciones.append(nHab)
-                
-            ### baño 
-            nBano = main.select_one("div:-soup-contains('Baño') ~ div.clp-description-value")
-            if(nBano != None):
-                nBano = nBano.text.replace("\n","").replace(" ","")
-                nBano = int(nBano)
-            banos.append(nBano)
+        ### superficie total
+        supTotal = main.select_one("div:-soup-contains('Superficie Total') ~ div.clp-description-value")
+        appendElementToList(supTotal, totalSuperficie, replaceEnter = True, replaceSpace = True, typeElement = "float", otherCharToDelete = ["m²"])
     
-            ### estacionamiento 
-            nEstacionamientos = main.select_one("div:-soup-contains('Estacionamiento') ~ div.clp-description-value")
-            if(nEstacionamientos != None):
-                nEstacionamientos = nEstacionamientos.text.replace("\n","").replace(" ","")
-                nEstacionamientos = int(nEstacionamientos)
-            estacionamientos.append(nEstacionamientos)
+        ### superficie construida
+        supConstruida = main.select_one("div:-soup-contains('Superficie Construida') ~ div.clp-description-value")
+        appendElementToList(supConstruida, superficieConstruida, replaceEnter = True, replaceSpace = True, typeElement = "float", otherCharToDelete = ["m²"])
+    
+        ### año construccion
+        añoCons = main.select_one("div:-soup-contains('Año') ~ div.clp-description-value")
+        appendElementToList(añoCons, añoConstruccion, replaceEnter = True, replaceSpace = True, typeElement = "int")
 
-            ### amoblado
-            muebles = main.select_one("div:-soup-contains('Amoblado') ~ div.clp-description-value")
-            if(muebles != None):
-                muebles = muebles.text.replace("\n","").replace(" ","")
-            amoblado.append(muebles)
-
-            ### superficie total
-            supTotal = main.select_one("div:-soup-contains('Superficie Total') ~ div.clp-description-value")
-            if(supTotal != None):
-                supTotal = supTotal.text.replace("\n","").replace(" ","").replace("m²", "" ).replace(".","").replace(",",".")
-                supTotal = float(supTotal)
-            totalSuperficie.append(supTotal)
+        ### direccion
+        direccionCasa = main.select_one("div:-soup-contains('Dirección') ~ div.clp-description-value")
+        appendElementToList(direccionCasa, direccion, replaceEnter = True, replaceSpace = False, typeElement = "str")
         
-            ### superficie construida
-            supConstruida = main.select_one("div:-soup-contains('Superficie Construida') ~ div.clp-description-value")
-            if(supConstruida != None):
-                supConstruida = supConstruida.text.replace("\n","").replace(" ","").replace("m²", "" ).replace(".","").replace(",",".")
-                supConstruida = float(supConstruida)
-            superficieConstruida.append(supConstruida)
-        
-            ### año construccion
-            añoCons = main.select_one("div:-soup-contains('Año') ~ div.clp-description-value")
-            if(añoCons != None):
-                añoCons = añoCons.text.replace("\n","").replace(" ","")
-                añoCons = int(añoCons)
-            añoConstruccion.append(añoCons)
+        ### comuna
+        comuna = main.select_one("div:-soup-contains('Dirección') ~ div.clp-description-value")
+        if(comuna != None):
+            comuna = comuna.text.replace("\n","")
+            comuna = comuna.partition(",")[0]
+        appendElementToList(comuna, comunas, replaceEnter = True, replaceSpace = False, typeElement = "str")
 
-            ### direccion
-            direccionCasa = main.select_one("div:-soup-contains('Dirección') ~ div.clp-description-value")
-            comuna = main.select_one("div:-soup-contains('Dirección') ~ div.clp-description-value")
-            if(direccion != None):
-                direccionCasa = direccionCasa.text.replace("\n","")
-                comuna = direccionCasa.partition(",")[0]
-            direccion.append(direccionCasa)
-            comunas.append(comuna)
+        ### codigo aviso 
 
-            ### codigo aviso 
+        ### codigo externo
 
-            ### codigo externo
+        ### tipo publicacion (venta usada por ej.) 
+        tipoPub = main.select_one("div:-soup-contains('Tipo de publicación') ~ div.clp-description-value")
+        appendElementToList(tipoPub, tipoPublicacion, replaceEnter = True, replaceSpace = False, typeElement = "str")
+      
+        ### tipo propiedad (casa) 
+        tipoProp = main.select_one("div:-soup-contains('Tipo de propiedad') ~ div.clp-description-value")
+        appendElementToList(tipoProp, tipoVivienda, replaceEnter = True, replaceSpace = True, typeElement = "str")
 
-            ### tipo publicacion (venta usada por ej.) 
-            tipoPub = main.select_one("div:-soup-contains('Tipo de publicación') ~ div.clp-description-value")
-            if(tipoPub != None):
-                tipoPub = tipoPub.text.replace("\n","")
-            tipoPublicacion.append(tipoPub)
+        ### fecha publicacion 
+        fecha = main.select_one("div:-soup-contains('Fecha Publicación') ~ div.clp-description-value")
+        appendElementToList(fecha, fechaPublicacion, replaceEnter = True, replaceSpace = True, typeElement = "str")
 
-            ### tipo propiedad (casa) 
-            tipoProp = main.select_one("div:-soup-contains('Tipo de propiedad') ~ div.clp-description-value")
-            if(tipoProp != None):
-                tipoProp = tipoProp.text.replace("\n","").replace(" ","")
-            tipoVivienda.append(tipoProp)
+        ### corredora
+        corredora = footmain.select_one("h2:-soup-contains('Corredora') ~ div > div.clp-user-contact-details-table > table > tr > th:-soup-contains('Nombre') ~ td")
+        appendElementToList(corredora, corredor, replaceEnter = True, replaceSpace = False, typeElement = "str")
 
-            ### fecha publicacion 
-            fecha = main.select_one("div:-soup-contains('Fecha Publicación') ~ div.clp-description-value")
-            if(fecha != None):
-                fecha = fecha.text.replace("\n","").replace(" ","")
-            fechaPublicacion.append(fecha)
-
-            ### corredora
-            corredora = corredora = footmain.select_one("h2:-soup-contains('Corredora') ~ div > div.clp-user-contact-details-table > table > tr > th:-soup-contains('Nombre') ~ td")
-            if(corredora != None):
-                corredora = corredora.text.replace("\n","")
-            corredor.append(corredora)
-
-            ### quien vende
-            propietario = footmain.select_one("div.clp-user-contact-details-table > h2:-soup-contains('Información de Contacto') ~ table > tr > th:-soup-contains('Nombre') ~ td")
-            if(propietario != None):
-                propietario = propietario.text.replace("\n","")
-            quienVende.append(propietario)
-        except Exception as e:
-            print("ERROR," , e)
+        ### quien vende
+        propietario = footmain.select_one("div.clp-user-contact-details-table > h2:-soup-contains('Información de Contacto') ~ table > tr > th:-soup-contains('Nombre') ~ td")
+        appendElementToList(propietario, quienVende, replaceEnter = True, replaceSpace = False, typeElement = "str")
 
 
-### FINAL CREATE CSV FILE
+### FINAL CREATE CSV FILE valorUF, valorCLP, valorUSD, 
+
+# año construccion ->  "Valor_UF", "Valor_CLP", "Valor_USD", 
 
 columns = [comunas, links, tipoVivienda, habitaciones, banos, estacionamientos, amoblado, totalSuperficie, superficieConstruida, añoConstruccion, valorUF, valorCLP, valorUSD, direccion, tipoPublicacion, quienVende, corredor ]
 names = ["Comuna", "Link", "Tipo_Vivienda", "N_Habitaciones", "N_Baños", "N_Estacionamientos", "Amoblado", "Total_Superficie_M2", "Superficie_Construida_M2", "Año_Construccion", "Valor_UF", "Valor_CLP", "Valor_USD", "Dirección", "Tipo_Publicacion", "Quién_Vende", "Corredor"]

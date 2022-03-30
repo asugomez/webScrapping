@@ -18,7 +18,7 @@ def requestURL(URL, attr = ""):
         proxies = { "http": None,"https": None }
         # Store the result in 'res' variable
         # todo look why session 
-        session = requests.Session()
+        session = requests.Session() # faster
         session.trust_env = False
         res = session.get(finalURL, headers={"User-Agent": ua.random}, proxies = proxies)
         txt = res.text
