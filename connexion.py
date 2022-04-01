@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from getpass import getpass
 from fake_useragent import UserAgent
 
 #url = "https://chilepropiedades.cl/propiedades/venta/casa/region-metropolitana-de-santiago-rm/"
@@ -13,15 +14,17 @@ def requestURL(URL, attr = ""):
     try:
         # send the request, with a randome user agent 
         finalURL = URL + attr
+        # ua.random()
         #  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"
         ua = UserAgent()
         proxies = { "http": None,"https": None }
         # Store the result in 'res' variable
         # todo look why session 
         session = requests.Session() # faster
+        session.auth = ('username', "asu")
         session.trust_env = False
-        res = session.get(finalURL, headers={"User-Agent": ua.random}, proxies = proxies)
-        txt = res.text
+        res = session.get(finalURL, headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"}, proxies = proxies)#, verify = False)
+        #txt = res.text
         status = res.status_code
         
         # print the result
