@@ -3,8 +3,6 @@ from saveData import *
 from funAppend import *
 import multiprocessing as mp
 
-
-
 class DataframeVivienda:
 
     def __init__( self, Codigo_Aviso = [], Comuna = [], Link = [], Tipo_Vivienda = [], N_Habitaciones  = [], N_Baños = [], N_Estacionamientos = [], Amoblado = [], Total_Superficie_M2 = [], Superficie_Construida_M2 = [], anoConstruccion = [], Valor_UF = [], Valor_CLP = [], Dirección = [], tipoPublicacion = [], Quién_Vende = [], Corredor = [], fechaPublicacion = []):
@@ -21,7 +19,6 @@ class DataframeVivienda:
         self.anoConstruccion        = anoConstruccion
         self.Valor_UF              = Valor_UF
         self.Valor_CLP               = Valor_CLP
-        #self.Valor_USD               = Valor_USD Valor_USD = [], 
         self.Dirección              = Dirección
         self.tipoPublicacion        = tipoPublicacion
         self.Quién_Vende             = Quién_Vende
@@ -73,31 +70,11 @@ class DataframeVivienda:
                 precio1 = main.select_one("div:-soup-contains('Valor:') ~ div.clp-description-value")
                 valPrecio1, divisa = appendPrice(precio1)
                 dict_price[divisa] = valPrecio1
-                # if(divisa == "CLP"):
-                #     self.Valor_CLP.append(valPrecio1)
-                # elif(divisa == "UF"):
-                #     self.Valor_UF.append(valPrecio1)
-                # #elif(divisa == "USD"):
-                #     #self.Valor_USD.append(valPrecio)
-                # else:
-                #     print("WARNING precio1: precio is not in CLP, UF or USD!")
-                #     print(valPrecio1)
-                #     self.Valor_CLP.append(None)
                 ### precio 2
                 precio2 = main.select_one("div:-soup-contains('Valor (') ~ div.clp-description-value > span")
                 valPrecio2, divisa = appendPrice(precio2)
                 dict_price[divisa] = valPrecio2
-                # if(divisa == "CLP"):
-                #     self.Valor_CLP.append(valPrecio2)
-                # elif(divisa == "UF"):
-                #     self.Valor_UF.append(valPrecio2)
-                # #elif(divisa == "USD"):
-                # #    self.Valor_USD.append(valPrecio)
-                # else:
-                #     print("WARNING precio2: precio is not in CLP, UF or USD!")
-                #     print(valPrecio2)
-                #     self.Valor_UF.append(None)
-                #print(dict_price.keys())
+
                 if "CLP" in dict_price.keys():
                     self.Valor_CLP.append(dict_price["CLP"])
                     # caso: CLP y UF
@@ -180,65 +157,36 @@ class DataframeVivienda:
                 appendElementToList(propietario, self.Quién_Vende, replaceEnter = True, replaceSpace = False, typeElement = "str")
             else:
                 print("WATNING: housepage null: ", finalLink)    
-            ### codigo externo
-        #  Comuna = [], Link = [], Tipo_Vivienda = [], N_Habitaciones  = [], N_Baños = [], N_Estacionamientos = [], Amoblado = [], Total_Superficie_M2 = [], Superficie_Construida_M2 = [], anoConstruccion = [], Valor_UF = [], Valor_CLP = [], Dirección = [], tipoPublicacion = [], Quién_Vende = [], Corredor = [], fechaPublicacion = []):
-        #self.Comuna.extend(self.Comuna)
-        #for key, value in self.__dict__:
-        #    value = val
-        #return self.Comuna, self.Amoblado
-        #return self.Comuna
+        
+
 
     def saveDataInCsvFile(self):
         d = self.__dict__
         dict_gral = dict()
-        #dict_price_clp = dict()
-        #dict_price_uf = dict()
-        #new_dict = dict(zip(d.values(), d.keys().))
-        #new_dict = dict.fromkeys(d.keys(), d.values())
         # dict_keys(['Comuna', 'Link', 'Tipo_Vivienda', 'N_Habitaciones', 'N_Baños', 'N_Estacionamientos', 'Amoblado', 'Total_Superficie_M2', 'Superficie_Construida_M2', 'anoConstruccion', 'Valor_UF', 'Valor_CLP', 'Dirección', 'tipoPublicacion', 'Quién_Vende', 'Corredor', 'fechaPublicacion', 'Codigo_Aviso'])
         for key, val in d.items():
             dict_gral[key] = val[:]
-            # if(key == "Codigo_Aviso"):
-            #     print("Key codigo aviso")
-            #     dict_price_clp[key] = val[:]
-            #     dict_price_uf[key] = val[:]
-            #     dict_gral[key] = val[:]
-            # else:
-            #     if(key == "Valor_CLP"):
-            #         dict_price_clp[key] = val[:]
-            #         print("key clp: ",key)
-            #     elif(key == "Valor_UF"):
-            #         dict_price_uf[key] = val[:]
-            #         print("key uf: ",key)
-            #     else:
-            #         dict_gral[key] = val[:]
-            #         print("key: ",key)
 
-        # print("general: ", dict_gral.keys())
-        # print("clp: ", dict_price_clp.keys())
-        # print("uf: ", dict_price_uf.keys())
-        print(len(self.Comuna))
-        print(len(self.Link))
-        print(len(self.Tipo_Vivienda))
-        print(len(self.N_Habitaciones))
-        print(len(self.N_Baños))
-        print(len(self.N_Estacionamientos))
-        print(len(self.Amoblado))
-        print(len(self.Total_Superficie_M2))
-        print(len(self.Superficie_Construida_M2))
-        print(len(self.anoConstruccion))
-        print(len(self.Valor_UF))
-        print(len(self.Valor_CLP))
-        print(len(self.Dirección))
-        print(len(self.tipoPublicacion))
-        print(len(self.Quién_Vende))
-        print(len(self.Corredor))
-        print(len(self.fechaPublicacion))
-        print(len(self.Codigo_Aviso))
+        # print(len(self.Comuna))
+        # print(len(self.Link))
+        # print(len(self.Tipo_Vivienda))
+        # print(len(self.N_Habitaciones))
+        # print(len(self.N_Baños))
+        # print(len(self.N_Estacionamientos))
+        # print(len(self.Amoblado))
+        # print(len(self.Total_Superficie_M2))
+        # print(len(self.Superficie_Construida_M2))
+        # print(len(self.anoConstruccion))
+        # print(len(self.Valor_UF))
+        # print(len(self.Valor_CLP))
+        # print(len(self.Dirección))
+        # print(len(self.tipoPublicacion))
+        # print(len(self.Quién_Vende))
+        # print(len(self.Corredor))
+        # print(len(self.fechaPublicacion))
+        # print(len(self.Codigo_Aviso))
 
         createOuputCsv(dict_gral, "dtgeneral.csv")
-        #createOuputCsv(dict_price_clp, "priceCLP.csv")
-        #createOuputCsv(dict_price_uf, "priceUF.csv")
 
 if __name__ == '__main__':
     # get the number of pages we have to scrap
@@ -253,28 +201,10 @@ if __name__ == '__main__':
     npages = DataframeVivienda.getNPagesToScrap(URL)
     print(npages)
 
-    
     urls = [URL + f"{i}" for i in range(npages)] # first 5 pages of houses (= 50 houses)
-    #dataframeVivienda.getInfoUrl(urltest)
 
     pool = mp.Pool(mp.cpu_count())
     results = pool.map(dataframeVivienda.getInfoUrl, urls)
-    # #createOuputCsv(results)
-    # print("res", results)
-    # for table in results:
-    #     for col in table:
-    #         print(col)
-    
-    
-    #for i in range(npages):
-    #    dataframeVivienda.getInfoUrl(urls[i])
-
-    # with mp.Pool(mp.cpu_count()) as pool:
-    #     print("im here")
-    #     a = pool.map(dataframeVivienda.getInfoUrl, urls) # TRY with nro mas grande (repetidS) and without closing, run it without main 
-    #     print("lista", a)
-    #     # test timing 
-    #     pool.close()
 
     dataframeVivienda.saveDataInCsvFile()
 
