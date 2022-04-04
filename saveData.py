@@ -1,12 +1,18 @@
 
 import pandas as pd 
 
-def createOuputCsv(nameList, columnsList, nameFileCsv = "output.csv"):
+def createOuputCsv(nameCols, columnsList, nameFileCsv = "output.csv"):
     """
     columns list a list of lists 
     """
     # todo asser len namelist == len columnsList
-    d = dict(zip(nameList, columnsList))
-    dataFrame = pd.DataFrame(d)
+    d = dict(zip(nameCols, columnsList))
+    createOuputCsv(dictionary, nameFileCsv)
+
+def createOuputCsv(dictionary, nameFileCsv = "output.csv"):
+    #print("dict: ", dictionary)
+    print(dictionary.keys())
+    dataframe = pd.DataFrame.from_dict(dictionary)
     nameFileCsv = "./" + nameFileCsv
-    dataFrame.to_csv(nameFileCsv)
+    dataframe.to_csv(nameFileCsv)
+
