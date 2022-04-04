@@ -28,7 +28,7 @@ def requestURL(URL, attr = ""):
         status = res.status_code
         
         # print the result
-        print(status, res.reason, finalURL)
+        #print(status, res.reason, finalURL)
 
         # beautiful soup to get the information in str
         soup = BeautifulSoup(res.content, 'html.parser')

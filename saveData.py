@@ -10,7 +10,9 @@ def createOuputCsv(nameCols, columnsList, nameFileCsv = "output.csv"):
     createOuputCsv(dictionary, nameFileCsv)
 
 def createOuputCsv(dictionary, nameFileCsv = "output.csv"):
-    dataframe = pd.DataFrame(dictionary)
+    #print("dict: ", dictionary)
+    print(dictionary.keys())
+    dataframe = pd.DataFrame.from_dict(dictionary)
     nameFileCsv = "./" + nameFileCsv
     dataframe.to_csv(nameFileCsv)
 

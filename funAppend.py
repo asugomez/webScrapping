@@ -38,7 +38,7 @@ def appendPrice(element):
                 valDvs = "USD"
                 element = float(element.replace(".","").replace(",","."))
             else:
-                print("WARNING: precio is not in CLP, UF or USD!")
+                print("WARNING fun append: precio is not in CLP, UF or USD!")
                 print(element)
                 valDvs = "N/A"
         return (element, valDvs)
